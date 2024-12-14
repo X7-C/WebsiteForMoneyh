@@ -3,7 +3,6 @@ export function logoutUser() {
   localStorage.removeItem('username');
   localStorage.removeItem('credits');
   alert('You have been logged out.');
-  window.location.href = '../../pages/auth/login.html';
+  window.location.href = '../../pages/login/index.html';
 }
-
 document.querySelector('#logoutButton')?.addEventListener('click', logoutUser);

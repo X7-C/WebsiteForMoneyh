@@ -1,4 +1,4 @@
-import { apiRequest } from '../../utils/api.js';
+import { apiRequest } from '../../../utils/api.js';
 
 export async function fetchUserCredits(username) {
   const token = localStorage.getItem('token');

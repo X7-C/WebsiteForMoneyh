@@ -1,4 +1,7 @@
-import { apiRequest } from '../../utils/api.js';
+import { apiRequest } from '../../../utils/api.js';
+import { checkAuth } from '../../../utils/checkAuth.js';
+
+checkAuth(); 
 
 async function loginUser(email, password) {
   const payload = { email, password };
@@ -23,7 +26,7 @@ document.querySelector('#loginForm')?.addEventListener('submit', async (e) => {
   try {
     await loginUser(email, password);
     alert('Login successful!');
-    window.location.href = '../../pages/listings/index.html';
+    window.location.href = '../../pages/listings/index.html'; 
   } catch (error) {
     console.error('Login failed:', error.message || error);
     alert('Login failed. Please check your credentials and try again.');

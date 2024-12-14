@@ -2,9 +2,7 @@ const API_BASE_URL = 'https://v2.api.noroff.dev/';
 const API_KEY = 'b99247dd-8989-4e93-8790-01cbfd47910b';
 
 export async function apiRequest(endpoint, method = 'GET', body = null, token = null) {
-  if (!token) {
-    token = localStorage.getItem('token');
-  }
+  token = token || localStorage.getItem('token');
 
   const headers = {
     'Content-Type': 'application/json',
@@ -13,6 +11,8 @@ export async function apiRequest(endpoint, method = 'GET', body = null, token = 
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+  } else if (endpoint !== 'auth/register' && endpoint !== 'auth/login') {
+    console.warn('No token found! This request might fail.');
   }
 
   try {
@@ -30,7 +30,7 @@ export async function apiRequest(endpoint, method = 'GET', body = null, token = 
       if (response.status === 401 && responseData.errors?.[0]?.message.includes('Invalid authorization token')) {
         localStorage.clear();
         alert('Your session has expired. Please log in again.');
-        window.location.href = '../../pages/auth/login.html';
+        window.location.href = '../../pages/login/index.html';
       }
 
       throw new Error(responseData.errors?.[0]?.message || 'An unknown error occurred');
