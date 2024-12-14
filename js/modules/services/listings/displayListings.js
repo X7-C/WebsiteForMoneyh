@@ -5,10 +5,31 @@ let currentPage = 1;
 const itemsPerPage = 21;
 let countdownInterval;
 
-async function fetchListings() {
+export async function fetchListings({
+  sortOption = 'newest',
+  searchTerm = '',
+  isAuctionEndedFiltered = false,
+} = {}) {
   try {
     const response = await apiRequest('auction/listings?_bids=true', 'GET');
     listings = response.data;
+
+    if (searchTerm) {
+      listings = listings.filter((listing) =>
+        listing.title.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    if (isAuctionEndedFiltered) {
+      listings = listings.filter(
+        (listing) => calculateTimeRemaining(listing.endsAt) !== 'Auction ended'
+      );
+    }
+
+    if (sortOption) {
+      sortListings(sortOption);
+    }
+
     displayListings(currentPage);
     setupPagination();
     startLiveCountdown();
@@ -18,10 +39,6 @@ async function fetchListings() {
   }
 }
 
-function truncateText(text, maxLength) {
-  return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
-}
-
 function displayListings(page) {
   const listingsContainer = document.querySelector('#listings');
   listingsContainer.innerHTML = '';
@@ -29,15 +46,15 @@ function displayListings(page) {
   const startIndex = (page - 1) * itemsPerPage;
   const paginatedListings = listings.slice(startIndex, startIndex + itemsPerPage);
 
+  if (paginatedListings.length === 0) {
+    listingsContainer.innerHTML = '<p class="no-listings">No available listings</p>';
+    return;
+  }
+
   paginatedListings.forEach((listing) => {
     const highestBid = listing.bids.length > 0
       ? Math.max(...listing.bids.map((bid) => bid.amount))
       : 'No bids yet';
-
-    const userBid = listing.bids.find(
-      (bid) => bid.bidder?.name === localStorage.getItem('username')
-    );
-    const userBidAmount = userBid ? `${userBid.amount} Credits` : 'No bids placed';
 
     const listingCard = `
       <div class="col-md-4">
@@ -45,8 +62,7 @@ function displayListings(page) {
           <img src="${listing.media[0]?.url || 'https://via.placeholder.com/150'}" class="card-img-top" alt="Listing Image">
           <div class="card-body">
             <h5 class="card-title">${truncateText(listing.title, 15)}</h5>
-            <p><strong>Current Highest Bid:</strong> ${highestBid} Credits</p>
-            <p><strong>Your Bid:</strong> ${userBidAmount}</p>
+            <p><strong>Highest Bid:</strong> ${highestBid} Credits</p>
             <p><strong>Time Remaining:</strong> <span class="time-remaining" data-end="${listing.endsAt}"></span></p>
             <a href="../details/index.html?id=${listing.id}" class="btn btn-info">View Details</a>
             <button class="btn btn-success placeBidBtn" data-id="${listing.id}" data-highest="${highestBid}">
@@ -60,39 +76,6 @@ function displayListings(page) {
   });
 
   attachBidListeners();
-}
-
-function setupPagination() {
-  const paginationContainer = document.querySelector('#pagination');
-  const totalPages = Math.ceil(listings.length / itemsPerPage);
-
-  paginationContainer.innerHTML = '';
-  for (let i = 1; i <= totalPages; i++) {
-    const pageButton = document.createElement('button');
-    pageButton.innerText = i;
-    pageButton.classList.add('btn', 'btn-secondary', 'me-2');
-    if (i === currentPage) pageButton.classList.add('active');
-
-    pageButton.addEventListener('click', () => {
-      currentPage = i;
-      displayListings(currentPage);
-      setupPagination();
-    });
-
-    paginationContainer.appendChild(pageButton);
-  }
-}
-
-function startLiveCountdown() {
-  clearInterval(countdownInterval);
-  countdownInterval = setInterval(() => {
-    const timeDisplays = document.querySelectorAll('.time-remaining');
-
-    timeDisplays.forEach((timeDisplay) => {
-      const endTime = timeDisplay.getAttribute('data-end');
-      timeDisplay.innerText = calculateTimeRemaining(endTime);
-    });
-  }, 1000);
 }
 
 function attachBidListeners() {
@@ -133,6 +116,68 @@ async function placeBid(listingId, amount, token) {
   }
 }
 
+function setupPagination() {
+  const paginationContainer = document.querySelector('#pagination');
+  const totalPages = Math.ceil(listings.length / itemsPerPage);
+
+  paginationContainer.innerHTML = '';
+  for (let i = 1; i <= totalPages; i++) {
+    const pageButton = document.createElement('button');
+    pageButton.innerText = i;
+    pageButton.classList.add('btn', 'page-button');
+    
+    if (i === currentPage) {
+      pageButton.classList.add('active-page');
+    }
+
+    pageButton.addEventListener('click', () => {
+      currentPage = i;
+      displayListings(currentPage);
+      setupPagination();
+    });
+
+    paginationContainer.appendChild(pageButton);
+  }
+}
+
+
+function sortListings(option) {
+  switch (option) {
+    case 'newest':
+      listings.sort((a, b) => new Date(b.created) - new Date(a.created));
+      break;
+    case 'oldest':
+      listings.sort((a, b) => new Date(a.created) - new Date(b.created));
+      break;
+    case 'highestBid':
+      listings.sort(
+        (a, b) =>
+          Math.max(...b.bids.map((bid) => bid.amount || 0)) -
+          Math.max(...a.bids.map((bid) => bid.amount || 0))
+      );
+      break;
+    case 'lowestBid':
+      listings.sort(
+        (a, b) =>
+          Math.max(...a.bids.map((bid) => bid.amount || 0)) -
+          Math.max(...b.bids.map((bid) => bid.amount || 0))
+      );
+      break;
+  }
+}
+
+function startLiveCountdown() {
+  clearInterval(countdownInterval);
+  countdownInterval = setInterval(() => {
+    const timeDisplays = document.querySelectorAll('.time-remaining');
+
+    timeDisplays.forEach((timeDisplay) => {
+      const endTime = timeDisplay.getAttribute('data-end');
+      timeDisplay.innerText = calculateTimeRemaining(endTime);
+    });
+  }, 1000);
+}
+
 function calculateTimeRemaining(endTime) {
   const end = new Date(endTime).getTime();
   const now = new Date().getTime();
@@ -147,42 +192,8 @@ function calculateTimeRemaining(endTime) {
   return `${hours}h ${minutes}m ${seconds}s`;
 }
 
-function handleSortChange(event) {
-  const sortOption = event.target.value;
-  let sortedListings = [...listings];
-
-  switch (sortOption) {
-    case 'newest':
-      sortedListings.sort((a, b) => new Date(b.created) - new Date(a.created));
-      break;
-    case 'oldest':
-      sortedListings.sort((a, b) => new Date(a.created) - new Date(b.created));
-      break;
-    case 'highestBid':
-      sortedListings.sort(
-        (a, b) =>
-          Math.max(...b.bids.map((bid) => bid.amount || 0)) -
-          Math.max(...a.bids.map((bid) => bid.amount || 0))
-      );
-      break;
-    case 'lowestBid':
-      sortedListings.sort(
-        (a, b) =>
-          Math.max(...a.bids.map((bid) => bid.amount || 0)) -
-          Math.max(...b.bids.map((bid) => bid.amount || 0))
-      );
-      break;
-  }
-
-  displayListings(currentPage);
-}
-
-function removeAuctionEnded() {
-  listings = listings.filter((listing) => calculateTimeRemaining(listing.endsAt) !== 'Auction ended');
-  displayListings(currentPage);
-  setupPagination();
+function truncateText(text, maxLength) {
+  return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 }
 
 document.addEventListener('DOMContentLoaded', fetchListings);
-document.querySelector('#sortFilter').addEventListener('change', handleSortChange);
-document.querySelector('#removeEndedButton').addEventListener('click', removeAuctionEnded);
