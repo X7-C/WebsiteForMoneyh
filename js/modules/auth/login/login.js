@@ -1,16 +1,14 @@
+import { TokenManager } from '../../../utils/tokenManager.js';
 import { apiRequest } from '../../../utils/api.js';
-import { checkAuth } from '../../../utils/checkAuth.js';
-
-checkAuth(); 
 
 async function loginUser(email, password) {
   const payload = { email, password };
   const response = await apiRequest('auth/login', 'POST', payload);
 
-  localStorage.setItem('token', response.data.accessToken);
-  localStorage.setItem('username', response.data.name);
+  TokenManager.saveToken(response.data.accessToken, response.data.name);
 
-  return response;
+  alert('Login successful!');
+  window.location.href = '../../pages/listings/index.html';
 }
 
 document.querySelector('#loginForm')?.addEventListener('submit', async (e) => {
@@ -25,10 +23,7 @@ document.querySelector('#loginForm')?.addEventListener('submit', async (e) => {
 
   try {
     await loginUser(email, password);
-    alert('Login successful!');
-    window.location.href = '../../pages/listings/index.html'; 
   } catch (error) {
-    console.error('Login failed:', error.message || error);
     alert('Login failed. Please check your credentials and try again.');
   }
 });

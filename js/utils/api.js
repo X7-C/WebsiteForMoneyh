@@ -1,44 +1,29 @@
-const API_BASE_URL = 'https://v2.api.noroff.dev/';
-const API_KEY = 'b99247dd-8989-4e93-8790-01cbfd47910b';
+import { TokenManager } from './tokenManager.js';
 
-export async function apiRequest(endpoint, method = 'GET', body = null, token = null) {
-  token = token || localStorage.getItem('token');
+export async function apiRequest(endpoint, method = 'GET', body = null) {
+  const token = TokenManager.getToken();
 
   const headers = {
     'Content-Type': 'application/json',
-    'X-Noroff-API-Key': API_KEY,
+    'X-Noroff-API-Key': 'b99247dd-8989-4e93-8790-01cbfd47910b',
   };
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
-  } else if (endpoint !== 'auth/register' && endpoint !== 'auth/login') {
-    console.warn('No token found! This request might fail.');
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`https://v2.api.noroff.dev/${endpoint}`, {
       method,
       headers,
       body: body ? JSON.stringify(body) : null,
     });
 
-    const responseData = await response.json();
-
-    if (!response.ok) {
-      console.error(`API Error (${response.status}):`, responseData);
-
-      if (response.status === 401 && responseData.errors?.[0]?.message.includes('Invalid authorization token')) {
-        localStorage.clear();
-        alert('Your session has expired. Please log in again.');
-        window.location.href = '../../pages/login/index.html';
-      }
-
-      throw new Error(responseData.errors?.[0]?.message || 'An unknown error occurred');
-    }
-
-    return responseData;
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.errors?.[0]?.message || 'Request failed');
+    return data;
   } catch (error) {
-    console.error('Network/API Request Error:', error.message || error);
+    console.error('API Request Error:', error.message || error);
     throw error;
   }
 }

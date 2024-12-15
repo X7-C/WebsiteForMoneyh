@@ -1,20 +1,14 @@
+import { TokenManager } from '../../../utils/tokenManager.js';
+
 document.addEventListener('DOMContentLoaded', () => {
-    const navLinks = document.querySelector('#navLinks');
-  
-    if (!navLinks) return;
-  
-    navLinks.addEventListener('click', (event) => {
-      if (event.target && event.target.id === 'logoutButton') {
-        event.preventDefault();
-        logoutUser();
-      }
-    });
-  });
-  
-  export function logoutUser() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('credits');
+  const logoutButton = document.querySelector('#logoutButton');
+
+  if (!logoutButton) return;
+
+  logoutButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    TokenManager.clearToken();
     alert('You have been logged out.');
     window.location.href = '../../pages/login/index.html';
-  }
+  });
+});
