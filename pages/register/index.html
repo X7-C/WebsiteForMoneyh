@@ -8,63 +8,44 @@
   <link rel="stylesheet" href="../../css/main.css">
 </head>
 <body>
-<header class="site-header text-center">
+
+<header class="main-header">
   <h1 class="site-title">Auction Site</h1>
 </header>
-<div class="container form-container mt-5">
-  <h2 class="form-heading text-center">Register</h2>
+
+<div class="form-container">
+  <div class="form-card">
+    <h2 class="form-heading">Register</h2>
   
-  <form id="registerForm" class="register-form p-4 needs-validation" novalidate>
-    <div class="mb-3">
-      <label for="name" class="form-label">Name</label>
-      <input 
-        type="text" 
-        id="name" 
-        class="form-control" 
-        placeholder="John_Doe" 
-        pattern="^[a-zA-Z0-9_]+$" 
-        title="Only letters, numbers, and underscores are allowed" 
-        required>
-      <div class="invalid-feedback">Please enter a valid username (letters, numbers, underscores).</div>
-    </div>
-
-    <div class="mb-3">
-      <label for="email" class="form-label">Email</label>
-      <input 
-        type="email" 
-        id="email" 
-        class="form-control" 
-        placeholder="John.Doe@stud.noroff.no" 
-        pattern="^[a-zA-Z0-9._%+-]+@stud\.noroff\.no$" 
-        title="Email must be a valid @stud.noroff.no address" 
-        required>
-      <div class="invalid-feedback">Please enter a valid @stud.noroff.no email address.</div>
-    </div>
-
-    <div class="mb-3">
-      <label for="password" class="form-label">Password</label>
-      <input 
-        type="password" 
-        id="password" 
-        class="form-control" 
-        placeholder="Minimum 8 characters" 
-        minlength="8" 
-        pattern="^(?=.*[A-Z])(?=.*\d).{8,}$" 
-        title="Password must be at least 8 characters long, with at least one uppercase letter and one number" 
-        required>
-      <div class="invalid-feedback">
-        Password must be at least 8 characters long, with at least one uppercase letter and one number.
+    <form id="registerForm" class="register-form" novalidate>
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" class="form-control" placeholder="John_Doe" 
+               pattern="^[a-zA-Z0-9_]+$" title="Only letters, numbers, and underscores are allowed" required>
+        <div class="invalid-feedback">Please enter a valid username (letters, numbers, underscores).</div>
       </div>
-    </div>
-    <button type="submit" class="btn btn-primary w-100">Register</button>
-  </form>
-  <p class="text-center mt-3">Already have an account? 
-    <a href="../login/index.html">Login here</a>.
-  </p>
-  <p class="text-center mt-2">Just visiting? 
-    <a href="../listings/index.html">Click here</a>.
-  </p>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" class="form-control" placeholder="John.Doe@stud.noroff.no" 
+               pattern="^[a-zA-Z0-9._%+-]+@stud\.noroff\.no$" title="Email must be a valid @stud.noroff.no address" required>
+        <div class="invalid-feedback">Please enter a valid @stud.noroff.no email address.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" class="form-control" placeholder="Minimum 8 characters" 
+               minlength="8" pattern="^(?=.*[A-Z])(?=.*\d).{8,}$" 
+               title="Password must be at least 8 characters long, with at least one uppercase letter and one number" required>
+        <div class="invalid-feedback">Password must be at least 8 characters long, with at least one uppercase letter and one number.</div>
+      </div>
+      <button type="submit" class="btn-register">Register</button>
+    </form>
+    <p class="form-footer">Already have an account? <a href="../login/index.html">Login here</a>.</p>
+    <p class="form-footer">Just visiting? <a href="../listings/index.html">Click here</a>.</p>
+  </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="../../js/modules/auth/register/register.js"></script>
 </body>

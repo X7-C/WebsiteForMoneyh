@@ -11,7 +11,7 @@ export async function fetchListings({
   isAuctionEndedFiltered = false,
 } = {}) {
   try {
-    const response = await apiRequest('auction/listings?_bids=true', 'GET');
+    const response = await apiRequest('auction/listings?_bids=true&_seller=true', 'GET');
     listings = response.data;
 
     if (searchTerm) {
@@ -56,22 +56,37 @@ function displayListings(page) {
       ? Math.max(...listing.bids.map((bid) => bid.amount))
       : 'No bids yet';
 
+    const profileImage = listing.seller.avatar?.url || 'https://via.placeholder.com/50';
+    const sellerName = listing.seller.name || 'Unknown User';
+
     const listingCard = `
-      <div class="col-md-4">
-        <div class="card mb-3 shadow-sm">
-          <img src="${listing.media[0]?.url || 'https://via.placeholder.com/150'}" class="card-img-top" alt="Listing Image">
-          <div class="card-body">
+    <div class="col-md-4">
+      <div class="card mb-3 shadow-sm d-flex flex-column h-100">
+        <!-- Seller Information -->
+        <div class="d-flex align-items-center p-2">
+          <img src="${profileImage}" class="rounded-circle me-2" alt="Seller Avatar" style="width: 40px; height: 40px;">
+          <small class="text-muted">${sellerName}</small>
+        </div>
+        <!-- Listing Image -->
+        <img src="${listing.media[0]?.url || 'https://via.placeholder.com/150'}" class="card-img-top" alt="Listing Image">
+        <!-- Card Body -->
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div>
             <h5 class="card-title">${truncateText(listing.title, 15)}</h5>
             <p><strong>Highest Bid:</strong> ${highestBid} Credits</p>
             <p><strong>Time Remaining:</strong> <span class="time-remaining" data-end="${listing.endsAt}"></span></p>
-            <a href="../details/index.html?id=${listing.id}" class="btn btn-info">View Details</a>
-            <button class="btn btn-success placeBidBtn" data-id="${listing.id}" data-highest="${highestBid}">
+          </div>
+          <div class="mt-3">
+            <a href="../details/index.html?id=${listing.id}" class="btn btn-info mb-2">View Details</a>
+            <button class="btn btn-success mt-2 placeBidBtn" data-id="${listing.id}" data-highest="${highestBid}">
               Place Bid
             </button>
           </div>
         </div>
       </div>
-    `;
+    </div>
+  `;
+  
     listingsContainer.innerHTML += listingCard;
   });
 
@@ -139,7 +154,6 @@ function setupPagination() {
     paginationContainer.appendChild(pageButton);
   }
 }
-
 
 function sortListings(option) {
   switch (option) {
