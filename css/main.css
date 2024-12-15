@@ -1,18 +1,26 @@
+@font-face {
+  font-family: 'Anonymous Pro';
+  src: url("../../WebsiteForMoneyh/assets/AnonymousPro-2O73w.ttf") format("truetype"); }
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box; }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Anonymous Pro', Arial, sans-serif;
   background: #f5f5f5;
   color: #343a40; }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Roboto', sans-serif; }
+  font-family: 'Anonymous Pro', sans-serif; }
 
 .navbar {
-  background: #f8f9fa; }
+  background: #f8f9fa;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
 
 .navbar-brand, .nav-link {
   font-size: 1.2rem;
@@ -20,6 +28,42 @@ h1, h2, h3, h4, h5, h6 {
 
 .nav-link:hover {
   color: #007bff !important; }
+
+.filter-section {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 2rem; }
+
+#removeEndedButton {
+  background: #dc3545 !important;
+  color: white !important;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  height: 38px;
+  border-radius: 5px; }
+
+#searchBar {
+  width: 100%;
+  height: 38px;
+  padding: 0.5rem; }
+
+.form-select-sm {
+  height: 38px;
+  min-width: 150px; }
+
+@media (max-width: 768px) {
+  .filter-section {
+    grid-template-columns: 1fr;
+    gap: 1rem; }
+  #removeEndedButton {
+    display: none;
+}
+  #searchBar {
+    width: 100%; }
+  .form-select-sm {
+    width: 100%; } }
 
 .details-container {
   max-width: 900px;
@@ -67,44 +111,6 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0.8rem;
   word-wrap: break-word;
   white-space: normal; }
-
-.bidders-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  word-wrap: break-word; }
-
-.bidders-list li {
-  margin-bottom: 0.8rem;
-  font-size: 1.1rem;
-  word-wrap: break-word;
-  white-space: normal; }
-
-.details-bid-btn {
-  background: #28a745;
-  color: white;
-  border: none;
-  padding: 0.8rem 2rem;
-  font-size: 1.2rem;
-  border-radius: 5px;
-  margin-top: 1rem;
-  width: fit-content; }
-  .details-bid-btn:hover {
-    background: #218838; }
-
-.filter-section {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem; }
-
-.form-select-sm {
-  width: 150px; }
-
-#removeEndedButton {
-  background: #dc3545 !important;
-  color: white !important;
-  padding: 0.4rem 0.6rem;
-  font-size: 0.9rem; }
 
 .card {
   background: #fff;
@@ -220,17 +226,3 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 5px; }
   .btn-login:hover {
     background: #0056b3; }
-
-@media (max-width: 1024px) {
-  .details-container {
-    padding: 1.5rem; }
-  .form-select-sm {
-    width: 100%; } }
-
-@media (max-width: 768px) {
-  .details-container {
-    padding: 1rem; }
-  .details-title {
-    font-size: 2rem; }
-  .card-img-top {
-    height: 150px; } }
