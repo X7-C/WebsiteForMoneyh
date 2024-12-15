@@ -18,4 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
       <li class="nav-item"><a class="nav-link" href="../login/index.html">Login</a></li>
     `;
   }
+
+  navLinks.addEventListener('click', (event) => {
+    if (event.target && event.target.id === 'logoutButton') {
+      event.preventDefault();
+      logoutUser();
+    }
+  });
 });
