@@ -7,7 +7,20 @@ export function logoutUser() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('#navLinks').addEventListener('click', (event) => {
+  const navLinks = document.querySelector('#navLinks');
+
+  if (!navLinks) {
+    const logoutButton = document.querySelector('#logoutButton');
+    if (logoutButton) {
+      logoutButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        logoutUser();
+      });
+    }
+    return;
+  }
+
+  navLinks.addEventListener('click', (event) => {
     if (event.target && event.target.id === 'logoutButton') {
       event.preventDefault();
       logoutUser();

@@ -2,6 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
   const navLinks = document.querySelector('#navLinks');
 
+  if (!navLinks) {
+    return;
+  }
+
   navLinks.innerHTML = `
     <li class="nav-item"><a class="nav-link active" href="../../index.html">Home</a></li>
     <li class="nav-item"><a class="nav-link" href="../listings/index.html">Listings</a></li>

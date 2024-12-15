@@ -48,14 +48,21 @@ async function fetchDetails() {
 
 function displaySellerInfo(profileImage, sellerName) {
   const container = document.querySelector('.details-left');
+
+  const existingSellerInfo = container.querySelector('.seller-info');
+  if (existingSellerInfo) {
+    existingSellerInfo.remove();
+  }
+
   const sellerInfo = document.createElement('div');
-  sellerInfo.classList.add('d-flex', 'align-items-center', 'mb-4');
+  sellerInfo.classList.add('seller-info', 'd-flex', 'align-items-center', 'mb-4');
   sellerInfo.innerHTML = `
     <img src="${profileImage}" class="rounded-circle me-2" style="width: 40px; height: 40px;" alt="Seller Avatar">
     <span class="fw-bold text-muted">${sellerName}</span>
   `;
   container.prepend(sellerInfo);
 }
+
 
 function getHighestBidsByUser(bids) {
   const highestBids = {};
@@ -119,6 +126,53 @@ function startLiveCountdown(endTime) {
 
   updateCountdown();
   countdownInterval = setInterval(updateCountdown, 1000);
+}
+
+async function handleBid() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    showLoginPopup();
+    return;
+  }
+
+  const bidAmount = parseFloat(
+    prompt(`Enter your bid amount (must be higher than ${currentHighestBid} Credits):`)
+  );
+
+  if (!bidAmount || isNaN(bidAmount) || bidAmount <= currentHighestBid) {
+    alert(`Please enter a valid bid amount higher than ${currentHighestBid}.`);
+    return;
+  }
+
+  try {
+    await apiRequest(`auction/listings/${listingId}/bids`, 'POST', { amount: bidAmount }, token);
+    alert('Bid placed successfully!');
+    fetchDetails();
+  } catch (error) {
+    console.error('Failed to place bid:', error.message || error);
+    alert(`Failed to place bid: ${error.message}`);
+  }
+}
+
+function showLoginPopup() {
+  if (document.querySelector("#loginPopup")) return;
+
+  const popupContainer = document.createElement("div");
+  popupContainer.id = "loginPopup";
+  popupContainer.classList.add("popup-overlay");
+  popupContainer.innerHTML = `
+    <div class="popup-content">
+      <h2 class="popup-title">Login Required</h2>
+      <p>You must be logged in to place a bid.</p>
+      <a href="../../pages/login/index.html" class="btn btn-primary">Go to Login</a>
+      <button id="closePopup" class="btn btn-secondary mt-3">Close</button>
+    </div>
+  `;
+
+  document.body.appendChild(popupContainer);
+  document.querySelector("#closePopup").addEventListener("click", () => {
+    popupContainer.remove();
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
