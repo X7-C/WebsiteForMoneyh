@@ -60,45 +60,70 @@ function displayListings(page) {
     const sellerName = listing.seller.name || 'Unknown User';
 
     const listingCard = `
-    <div class="col-md-4">
-      <div class="card mb-3 shadow-sm d-flex flex-column h-100">
-        <!-- Seller Information -->
-        <div class="d-flex align-items-center p-2">
-          <img src="${profileImage}" class="rounded-circle me-2" alt="Seller Avatar" style="width: 40px; height: 40px;">
-          <small class="text-muted">${sellerName}</small>
-        </div>
-        <!-- Listing Image -->
-        <img src="${listing.media[0]?.url || 'https://via.placeholder.com/150'}" class="card-img-top" alt="Listing Image">
-        <!-- Card Body -->
-        <div class="card-body d-flex flex-column justify-content-between">
-          <div>
-            <h5 class="card-title">${truncateText(listing.title, 15)}</h5>
-            <p><strong>Highest Bid:</strong> ${highestBid} Credits</p>
-            <p><strong>Time Remaining:</strong> <span class="time-remaining" data-end="${listing.endsAt}"></span></p>
+      <div class="col-md-4">
+        <div class="card mb-3 shadow-sm d-flex flex-column h-100">
+          <!-- Seller Information -->
+          <div class="d-flex align-items-center p-2">
+            <img src="${profileImage}" class="rounded-circle me-2" alt="Seller Avatar" style="width: 40px; height: 40px;">
+            <small class="text-muted">${sellerName}</small>
           </div>
-          <div class="mt-3">
-            <a href="../details/index.html?id=${listing.id}" class="btn btn-info mb-2">View Details</a>
-            <button class="btn btn-success mt-2 placeBidBtn" data-id="${listing.id}" data-highest="${highestBid}">
-              Place Bid
-            </button>
+          <!-- Listing Image -->
+          <img src="${listing.media[0]?.url || 'https://via.placeholder.com/150'}" class="card-img-top" alt="Listing Image">
+          <!-- Card Body -->
+          <div class="card-body d-flex flex-column justify-content-between">
+            <div>
+              <h5 class="card-title">${truncateText(listing.title, 15)}</h5>
+              <p><strong>Highest Bid:</strong> ${highestBid} Credits</p>
+              <p><strong>Time Remaining:</strong> <span class="time-remaining" data-end="${listing.endsAt}"></span></p>
+            </div>
+            <div class="mt-3">
+              <a href="../details/index.html?id=${listing.id}" class="btn btn-info mb-2">View Details</a>
+              <button class="btn btn-success mt-2 placeBidBtn" data-id="${listing.id}" data-highest="${highestBid}">
+                Place Bid
+              </button>
+              <div class="bid-form mt-3" data-id="${listing.id}" style="display: none;">
+                <input 
+                  type="number" 
+                  class="form-control bid-input mb-2" 
+                  placeholder="Enter your bid"
+                />
+                <button class="btn btn-success submitBidBtn">Submit Bid</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  `;
-  
+    `;
+
     listingsContainer.innerHTML += listingCard;
   });
 
   attachBidListeners();
 }
 
+
 function attachBidListeners() {
   document.querySelectorAll('.placeBidBtn').forEach((button) => {
-    button.addEventListener('click', async () => {
+    button.addEventListener('click', () => {
       const listingId = button.getAttribute('data-id');
-      const currentHighestBid = parseFloat(button.getAttribute('data-highest')) || 0;
+      const bidForm = document.querySelector(`.bid-form[data-id="${listingId}"]`);
+      if (bidForm) {
+        bidForm.style.display = 'block';
+      }
+    });
+  });
+
+  document.querySelectorAll('.submitBidBtn').forEach((submitBtn) => {
+    submitBtn.addEventListener('click', async (event) => {
+      const form = event.target.closest('.bid-form');
+      const input = form.querySelector('.bid-input');
+      const listingId = form.getAttribute('data-id');
       const token = localStorage.getItem('token');
+      const currentHighestBid = parseFloat(
+        document.querySelector(`.placeBidBtn[data-id="${listingId}"]`)?.getAttribute('data-highest')
+      );
+
+      const bidAmount = parseFloat(input.value);
 
       if (!token) {
         alert('You must be logged in to place a bid.');
@@ -106,19 +131,18 @@ function attachBidListeners() {
         return;
       }
 
-      const bidAmount = parseFloat(
-        prompt(`Enter your bid amount (must be higher than ${currentHighestBid} Credits):`)
-      );
-
       if (!bidAmount || isNaN(bidAmount) || bidAmount <= currentHighestBid) {
         alert(`Please enter a valid bid amount higher than ${currentHighestBid}.`);
         return;
       }
 
       await placeBid(listingId, bidAmount, token);
+      input.value = '';
+      form.style.display = 'none';
     });
   });
 }
+
 
 async function placeBid(listingId, amount, token) {
   try {
